@@ -3,6 +3,7 @@ import os
 import requests
 import gzip
 
+
 # CONEXION, DESCARCARGA Y DESCOMPRESION DESDE EUROSTAT 
 def get_population():
   url = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/lfsq_pganws/?format=SDMX-CSV&compressed=true"
