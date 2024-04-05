@@ -61,13 +61,13 @@ def setup_api():
   # APLICAMOS FILTROS DE EXTRANJEROS, ACTIVOS
   df_foreigners_act = df[(df['citizen']=='FOR') & (df['wstatus']=='ACT')]
   # Fecha superior a 2014
-  df_foreigners_act = df_foreigners_act[df_foreigners_act['year_month'] >= '2014-01-01']
+  df_foreigners_act = df_foreigners_act[df_foreigners_act['year_month'] >= '2017-01-01']
 
   # paises
-  countries = ['AT', 'BE', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EE', 'EL', 'ES',
-       'FI', 'FR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LU', 'ME',
-       'MT', 'NL', 'NO', 'PL', 'PT', 'RS', 'SE', 'SI', 'SK', 'UK', 'BA',
-       'BG', 'LT', 'LV', 'MK', 'RO', 'TR']
+  countries = ['AT', 'BE', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EL', 'ES',
+       'FI', 'FR', 'HR', 'IE', 'IS', 'IT', 'LU', 'ME',
+       'NL', 'NO', 'PT', 'RS', 'SE', 'SI', 'SK', 'BA',
+       'BG', 'MK', 'RO', 'TR']
 
   # Crear un diccionario de DataFrames, uno por cada país
   dfs_by_country = {}
