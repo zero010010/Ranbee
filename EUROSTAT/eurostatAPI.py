@@ -65,9 +65,7 @@ def setup_api():
 
   # paises
   countries = ['AT', 'BE', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EL', 'ES',
-       'FI', 'FR', 'HR', 'IE', 'IS', 'IT', 'LU', 'ME',
-       'NL', 'NO', 'PT', 'RS', 'SE', 'SI', 'SK', 'BA',
-       'BG', 'MK', 'RO', 'TR']
+       'FI', 'FR', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'SE', 'SI', 'TR']
 
   # Crear un diccionario de DataFrames, uno por cada país
   dfs_by_country = {}
