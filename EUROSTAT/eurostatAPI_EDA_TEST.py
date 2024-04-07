@@ -1,0 +1,172 @@
+from fastapi import FastAPI
+import pandas as pd
+import os
+import requests
+import gzip
+import json
+from util.funcionesEurostat import encontrar_dfs_con_valores_cero,encontrar_dfs_vacios,salvar_df_processed,salvar_dfs_preprocessed,generar_serie_suma,completar_series_trimestrales
+
+
+app = FastAPI()
+
+# 1 ENDPOINT PARA EXTRAER DATOS DE EUROSTAT y 2 para visualizar parte de los datos 
+@app.get("/eurostat/") 
+def setup_api():
+  url = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/lfsq_pganws/?format=SDMX-CSV&compressed=true"
+
+  response = requests.get(url)
+
+  with open('estat_lfsq_pganws_en.csv', 'wb') as f:
+      f.write(response.content)
+  archivo_comprimido = 'estat_lfsq_pganws_en.csv' 
+  nombre_descomprimido = 'estat_lfsq_pganws-decodificado.csv'  # Cambia 'nombre_del_archivo.tsv' al nombre deseado para el archivo descomprimido
+
+  with gzip.open(archivo_comprimido, 'rb') as f:
+    datos_descomprimidos = f.read()
+
+  # Guardar los datos descomprimidos en un archivo
+  with open(nombre_descomprimido, 'wb') as f:
+    f.write(datos_descomprimidos)
+
+  # LECTURA FICHERO DESCOMPRIMIDO
+  df = pd.read_csv("estat_lfsq_pganws-decodificado.csv")
+
+  # Verificar si la carpeta de salida existe, si no, crearla
+  if not os.path.exists("../data/raw"):
+    os.makedirs("data/raw")
+  df.to_csv('data/raw/eurostat.csv')
+  # LIMPIEZA Y TRATAMIENTO
+  df = df.drop(['DATAFLOW','freq','unit','OBS_FLAG','LAST UPDATE'],axis=1)
+  # rellena valores nan por cero
+  df['OBS_VALUE'] = df['OBS_VALUE'].fillna(0)
+  df['OBS_VALUE'] = df['OBS_VALUE'].round(1)
+
+  # Función para mapear los trimestres a meses específicos
+  def map_quarter_to_month(quarter):
+     year, q = quarter.split('-Q')
+     if q == '1':
+        return f"{year}-03-01"
+     elif q == '2':
+        return f"{year}-06-01"
+     elif q == '3':
+        return f"{year}-09-01"
+     elif q == '4':
+        return f"{year}-12-01"
+     else:
+        return None
+
+  # Crear la nueva columna 'year_month' basada en la columna 'TIME_PERIOD'
+  df['year_month'] = df['TIME_PERIOD'].apply(map_quarter_to_month)
+
+  # APLICAMOS FILTROS DE EXTRANJEROS, ACTIVOS
+  df_foreigners_act = df[(df['citizen']=='FOR') & (df['wstatus']=='ACT')]
+  # Fecha superior a 2014
+  df_foreigners_act = df_foreigners_act[df_foreigners_act['year_month'] >= '2017-01-01']
+
+  # paises
+  countries = ['AT', 'BE', 'CH', 'CY', 'CZ', 'DE', 'DK', 'EL', 'ES',
+       'FI', 'FR', 'IE', 'IT', 'LU', 'NL', 'NO', 'PT', 'SE', 'SI', 'TR']
+
+  # Crear un diccionario de DataFrames, uno por cada país
+  dfs_by_country = {}
+  for country in countries:
+    dfs_by_country[country] = [df_foreigners_act[(df_foreigners_act['geo'] == country) & (df_foreigners_act['sex'] == 'M')],
+                               df_foreigners_act[(df_foreigners_act['geo'] == country) & (df_foreigners_act['sex'] == 'F')]]
+
+  # Crear una lista para almacenar los países con DataFrames vacíos y los elimina
+  paises_con_dfs_vacios = encontrar_dfs_vacios(dfs_by_country)
+  for pais in paises_con_dfs_vacios:
+    del dfs_by_country[pais]
+
+  # Iterar sobre el diccionario
+  for country, dfs in dfs_by_country.items():
+    # Iterar sobre los DataFrames para el país actual
+    for df_gender in dfs:
+        # Calcular el total de observaciones por fecha
+        df_gender['total_obs_value'] = df_gender.groupby('year_month')['OBS_VALUE'].transform('sum')
+        df_gender['total_obs_value'] = df_gender['total_obs_value'].round(1)
+
+  # Crear una lista para almacenar los DataFrames con 50% vacíos y los elimina
+  lista = encontrar_dfs_con_valores_cero(dfs_by_country)
+  #print(lista)
+  for i in lista:
+    del dfs_by_country[i]
+
+  # SALVA EN PRE-PROCESSED
+  salvar_dfs_preprocessed(dfs_by_country)
+
+  # SALVA EN PROCESSED
+  salvar_df_processed(dfs_by_country)
+
+  # COMPLETA LAS SERIES
+  completar_series_trimestrales('data/processed')
+
+  # GENERA LA SERIE EU
+  generar_serie_suma('data/processed')
+  return ("setup completo")
+
+@app.get("/eurostat/head")
+def head_api():
+    """
+    Función muestra el head
+    """
+    df = pd.read_csv("data/raw/eurostat.csv")
+    df_ = df.head(5)
+    return json.loads(df_.to_json(orient='records'))
+
+@app.get("/eurostat/serie")
+def serie_api():
+    """
+    Función muestra el head
+    """
+    df = pd.read_csv("data/serie/serie_EU.csv")
+    df_ = df.head(5)
+    return json.loads(df_.to_json(orient='records'))
+
+"""Nuevo endpoint @app.eda 
+ de los endpoints @app.get("/eurostat/")
+   y @app.get("/eurostat/serie")
+   realiza un análisis exploratorio de datos
+   y guarda los resultados en un CSV
+   dentro de la carpeta "EDA
+"""
+
+
+@app.get("/eda")
+def perform_eda(data_source: str):
+    # Verifica el valor de data_source y obtiene el DataFrame correspondiente
+    if data_source == "eurostat":
+        df = setup_api()  #  endpoint "/eurostat/"
+    elif data_source == "serie":
+        df = pd.read_csv("data/serie/serie_EU.csv")  # endpoint "/eurostat/serie"
+    else:
+        # Si data_source no es válido, devuelve un error
+        return {"error": "Invalid data source"}
+
+    # EDA
+    eda_results = {
+        "num_rows": len(df),  # Número de filas
+        "num_columns": len(df.columns),  # Número de columnas
+        "column_names": list(df.columns),  # Lista de nombres de columnas
+        "null_counts": df.isnull().sum().to_dict(),  # Recuento de valores nulos por columna
+        "data_types": df.dtypes.to_dict(),  # Tipos de datos de cada columna
+        "descriptive_stats": df.describe().to_dict()  # Estadísticas descriptivas
+    }
+
+    # Crea la carpeta "EDA" si no existe
+    eda_folder = "EDA"
+    if not os.path.exists(eda_folder):
+        os.makedirs(eda_folder)
+
+    # Genera un nombre de archivo único para guardar los resultados del EDA
+    file_number = 1
+    while os.path.exists(f"{eda_folder}/eda_{data_source}_{file_number}.csv"):
+        file_number += 1
+    filename = f"{eda_folder}/eda_{data_source}_{file_number}.csv"
+
+    # Guarda los resultados del EDA en un archivo CSV
+    eda_df = pd.DataFrame.from_dict(eda_results, orient="index")
+    eda_df.to_csv(filename)
+
+    # Devuelve un mensaje indicando la ruta del archivo guardado
+    return {"message": f"EDA results for {data_source} saved to {filename}"}
