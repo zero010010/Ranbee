@@ -32,7 +32,7 @@ def setup_api():
   df = pd.read_csv("estat_lfsq_pganws-decodificado.csv")
 
   # Verificar si la carpeta de salida existe, si no, crearla
-  if not os.path.exists("../data/raw"):
+  if not os.path.exists("data/raw"):
     os.makedirs("data/raw")
   df.to_csv('data/raw/eurostat.csv')
   # LIMPIEZA Y TRATAMIENTO
