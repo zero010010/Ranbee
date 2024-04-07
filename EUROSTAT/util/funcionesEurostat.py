@@ -34,8 +34,8 @@ def salvar_dfs_preprocessed(dfs_by_country):
 
     Retorna: None
    """
-    if not os.path.exists("../data/pre-processed"):
-        os.makedirs("../data/pre-processed")
+    if not os.path.exists("data/pre-processed"):
+        os.makedirs("data/pre-processed")
 
     # Iterar sobre las claves y valores del diccionario
     for pais, dfs_pais in dfs_by_country.items():
@@ -43,11 +43,11 @@ def salvar_dfs_preprocessed(dfs_by_country):
         for df in dfs_pais:
             # Generar el nombre del archivo CSV
             if (i == 0):
-                nombre_archivo = f"../data/pre-processed/foreigner_act_{pais}_M.csv"
+                nombre_archivo = f"data/pre-processed/foreigner_act_{pais}_M.csv"
                 i = 1
             else:
             
-                nombre_archivo = f"../data/pre-processed/foreigner_act_{pais}_F.csv"
+                nombre_archivo = f"data/pre-processed/foreigner_act_{pais}_F.csv"
         # Guardar el DataFrame como un archivo CSV
         df.to_csv(nombre_archivo, index=False)
 
@@ -64,8 +64,8 @@ def salvar_df_processed(dfs_by_country):
     Retorna: None
    """
         
-    if not os.path.exists("../data/processed"):
-        os.makedirs("../data/processed")
+    if not os.path.exists("data/processed"):
+        os.makedirs("data/processed")
 
     # Iterar sobre las claves y valores del diccionario
     for pais, dfs_pais in dfs_by_country.items():
@@ -90,7 +90,7 @@ def salvar_df_processed(dfs_by_country):
         # Añadir la serie resultante como una nueva columna llamada 'total' a df1
         nuevo_df1['total'] = suma_ultimas_columnas.round(1)
         #nuevo_df1 = nuevo_df1.drop_duplicates(subset=['year_month'])
-        nombre_archivo = f"../data/processed/foreigners_act_{pais}_MyF.csv"
+        nombre_archivo = f"data/processed/foreigners_act_{pais}_MyF.csv"
         indice_fecha_maxima = nuevo_df1['year_month'].idxmax()
 
         res = nuevo_df1.iloc[:indice_fecha_maxima+1,7:]    
@@ -141,8 +141,8 @@ def completar_series_trimestrales(ruta_carpeta):
     Retorna: None
    """
     # Verificar si la carpeta de salida existe, si no, crearla
-    if not os.path.exists("../data/series"):
-        os.makedirs("../data/series")
+    if not os.path.exists("data/series"):
+        os.makedirs("data/series")
     
     # Obtener la lista de archivos en la carpeta
     archivos = os.listdir(ruta_carpeta)
@@ -169,7 +169,7 @@ def completar_series_trimestrales(ruta_carpeta):
             # Rellenar la serie temporal mensual con los valores del trimestre correspondiente
             df_mensual['total'] = df.set_index('year_month').resample('Q').ffill()['total']
             # Guardar el DataFrame reducido como un archivo CSV
-            ruta_nueva = os.path.join("../data/series", archivo)
+            ruta_nueva = os.path.join("data/series", archivo)
             df_mensual.to_csv(ruta_nueva)
 
 def generar_serie_suma(directorio_entrada):
@@ -186,8 +186,8 @@ def generar_serie_suma(directorio_entrada):
     # Leer los archivos en el directorio de entrada
     archivos = os.listdir(directorio_entrada)
     # Verificar si la carpeta de salida existe, si no, crearla
-    if not os.path.exists("../data/serie"):
-        os.makedirs("../data/serie")
+    if not os.path.exists("data/serie"):
+        os.makedirs("data/serie")
 
     # Inicializar una lista para almacenar las series individuales
     series = []
@@ -221,4 +221,4 @@ def generar_serie_suma(directorio_entrada):
 
     # Guardar la serie resultante en un archivo CSV
     serie_vacia = serie_vacia['total']
-    serie_vacia.to_csv('../data/serie/serie_EU.csv',index=False)
+    serie_vacia.to_csv('data/serie/serie_EU.csv',index=False)
