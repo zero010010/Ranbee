@@ -271,6 +271,6 @@ def total_mean():
 # PROBLEMA, como hagas una llamada multiple, hay que esperar 5 segundos entre consultas o deja de funcionar
 #Se produjo un error: The gdelt api returned a non-successful statuscode. This is the response message: Please limit requests to one every 5 seconds or contact kalev.leetaru5@gmail.com for larger queries.
 # solucion, meter un timesleep. NO LO HA SOLUCIONADO.
-# en principio descarto el doble bucle para los paises y topic.
+# En principio descarto el doble bucle para los paises y topic.
 #keywords = ["Inclusive growth", "Enterprise Development", "Financial Inclusion", "Social inclusion", "Access to Education", "Health service delivery"]
 #
