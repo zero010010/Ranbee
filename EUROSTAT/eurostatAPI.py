@@ -123,3 +123,48 @@ def serie_api():
     df = pd.read_csv("data/serie/serie_EU.csv")
     df_ = df.head(5)
     return json.loads(df_.to_json(orient='records'))
+"""Nuevo endpoint @app.eda 
+ de los endpoints @app.get("/eurostat/")
+   y @app.get("/eurostat/serie")
+   realiza un análisis exploratorio de datos
+   y guarda los resultados en un CSV
+   dentro de la carpeta "EDA
+"""
+
+
+@app.get("/eda")
+def perform_eda(data_source: str):
+    # Verifica el valor de data_source y obtiene el DataFrame correspondiente
+    if data_source == "eurostat":
+        df = pd.read_csv("data/raw/eurostat.csv")  #  endpoint "/eurostat/"
+    elif data_source == "serie":
+        df = pd.read_csv("data/serie/serie_EU.csv")  # endpoint "/eurostat/serie"
+    else:
+        # Si data_source no es válido, devuelve un error
+        return {"error": "Invalid data source"}
+
+    # EDA
+    eda_results = {
+        "num_rows": len(df),  # Número de filas
+        "num_columns": len(df.columns),  # Número de columnas
+        "column_names": list(df.columns),  # Lista de nombres de columnas
+        "null_counts": df.isnull().sum().to_dict(),  # Recuento de valores nulos por columna
+        "data_types": df.dtypes.to_dict(),  # Tipos de datos de cada columna
+        "descriptive_stats": df.describe().to_dict()  # Estadísticas descriptivas
+    }
+
+    # Crea la carpeta "EDA" si no existe
+    eda_folder = "EDA"
+    if not os.path.exists(eda_folder):
+        os.makedirs(eda_folder)
+
+    # Genera un nombre de archivo único para guardar los resultados del EDA
+     
+    filename = f"{eda_folder}/eda_{data_source}.csv"
+
+    # Guarda los resultados del EDA en un archivo CSV
+    eda_df = pd.DataFrame.from_dict(eda_results, orient="index")
+    eda_df.to_csv(filename)
+
+    # Devuelve un mensaje indicando la ruta del archivo guardado
+    return {"message": f"EDA results for {data_source} saved to {filename}"}
