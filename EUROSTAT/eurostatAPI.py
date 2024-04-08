@@ -9,7 +9,8 @@ from util.funcionesEurostat import encontrar_dfs_con_valores_cero,encontrar_dfs_
 
 app = FastAPI()
 
-# 1 ENDPOINT PARA EXTRAER DATOS DE EUROSTAT y 2 para visualizar parte de los datos 
+# # 1 ENDPOINT FOR EXTRACTING EUROSTAT DATA AND 2 FOR VISUALIZING PART OF THE DATA
+
 @app.get("/eurostat/") 
 def setup_api():
   url = "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/lfsq_pganws/?format=SDMX-CSV&compressed=true"
