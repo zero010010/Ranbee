@@ -124,7 +124,7 @@ def limpiar_dataframe(df: pd.DataFrame,freq:str): # function to clean dataframe,
     return df_limpio 
 
 
-# Cleaning 
+# Cleanup function, pending revision and include more utilities, such as mean and Dataframe concatenation
 @app.get("/clean")
 def endpoint_limpiar_dataframe(funcion_obtener_datos: str, keyword: str, country: str,periodo:str): # function to clean dataframe, arg : data type, keyword, country, period
     if funcion_obtener_datos.lower() == "tone":
