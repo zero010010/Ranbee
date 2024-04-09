@@ -9,7 +9,7 @@ from util.funcionesEurostat import encontrar_dfs_con_valores_cero,encontrar_dfs_
 
 app = FastAPI()
 
-# 1 ENDPOINT FOR EXTRACTING EUROSTAT DATA AND 2 FOR VISUALIZING PART OF THE DATA
+# ENDPOINT FOR EXTRACTING EUROSTAT DATA AND 2 FOR VISUALIZING PART OF THE DATA
 
 @app.get("/eurostat/") 
 def setup_api():
