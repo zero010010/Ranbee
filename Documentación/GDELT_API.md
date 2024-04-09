@@ -1,7 +1,7 @@
 
 # FastAPI Application for GDELT Data Extraction
 
-This FastAPI application provides endpoints to extract daily, monthly, and quarterly data from the GDELT (Global Database of Events, Language, and Tone) database based on specified filters. It also includes an endpoint for cleaning the data, an endpoint for extracting data for a specific project, and endpoints for calculating the mean values of the extracted data.
+This FastAPI application provides endpoints to extract daily, monthly, and quarterly data from the GDELT (Global Database of Events, Language, and Tone) database based on specified filters. It also includes an endpoint for cleaning the data, an endpoint for extracting data for a specific proyect, for example including all countries in a determined list. 
 
 ## Endpoints
 
@@ -65,7 +65,7 @@ The endpoint returns a message indicating the successful cleaning of the data. T
 
 ### `/project`
 
-This endpoint allows you to extract data for a specific project, including all countries in a predefined list.
+This endpoint allows you to extract data for a specific project, eg: including all countries in a predefined list.
 
 #### Parameters
 
