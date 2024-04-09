@@ -161,7 +161,7 @@ def endpoint_limpiar_dataframe(funcion_obtener_datos: str, keyword: str, country
 
     # save cleaned dataframe to csv file
     file_timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S") # avoid re-writing existing files by adding timestamp to filename
-    filename = f"{save_folder}/{keyword}_limpio_{folder_name}_{time}_{country}_{file_timestamp}.csv"  # Agregar el nombre del país y el periodo de tiempo al archivo CSV
+    filename = f"{save_folder}/{keyword}_limpio_{folder_name}_{periodo}_{country}_{file_timestamp}.csv"  # Agregar el nombre del país y el periodo de tiempo al archivo CSV
     df_save.to_csv(filename, index=False)
     
     return f"Dates of {funcion_obtener_datos.capitalize()} has been cleaned successfully"
@@ -221,11 +221,12 @@ def extraccion_total(funcion_obtener_datos: str, keyword: str, periodo: str):# f
 
         # y guardamos
         file_timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S") # avoid re-writing existing files by adding timestamp to filename
-        filename = f"{save_folder}/{keyword}_{folder_name}_{time}_{country}_{file_timestamp}.csv"  # Agregate country name and time period to csv filename
+        filename = f"{save_folder}/{keyword}_{folder_name}_{periodo}_{country}_{file_timestamp}.csv"  # Agregate country name and time period to csv filename
         df_save.to_csv(filename, index=False)# save cleaned dataframe to csv file with timestamp in filename
     
     return f"Mean of {funcion_obtener_datos.capitalize()} data downloaded successfully for all countries"
 
+# OPTIONAL, PENDING REVIEW
 @app.get("/mean")# calculate mean of column for all csvs in folder
 def calcular_media(csv_folder, column_name,output_csv: bool = False): 
     """
