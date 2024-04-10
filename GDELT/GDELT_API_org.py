@@ -20,8 +20,8 @@ def descargar_datos_diarios(funcion_obtener_datos: str, keyword: str, country: s
                     end_date="2023-12-31",
                     country=country)
     gd = GdeltDoc() # Initialize GdeltDoc class 
-    if funcion_obtener_datos.lower() == "tone":# Checks if tone is specified
-        results = gd.timeline_search("timelinetone", f)# Calls timeline_search method based on filter
+    if funcion_obtener_datos.lower() == "tone":
+        results = gd.timeline_search("timelinetone", f)
         df = pd.DataFrame(results) # Converts results to DataFrame
     elif funcion_obtener_datos.lower() == "popularity":# Checks if popularity is specified
         results = gd.timeline_search("timelinevol", f) # Calls timeline_search method based on filter
@@ -36,29 +36,29 @@ def descargar_datos_diarios(funcion_obtener_datos: str, keyword: str, country: s
             os.makedirs(carpeta_padre)# If not, create it
     
         carpeta_tipo_datos = f"{carpeta_padre}/{funcion_obtener_datos}" # Create subfolder route based on data type
-        if not os.path.exists(carpeta_tipo_datos):# Check if subfolder exists
-            os.makedirs(carpeta_tipo_datos)# If not, create it
+        if not os.path.exists(carpeta_tipo_datos):
+            os.makedirs(carpeta_tipo_datos)
     
         # Check if file with same name already exists, if so, increment file number 
         file_number = 1
-        while os.path.exists(f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_{file_number}.csv"):# Check if file with same name already exists
-            file_number += 1# Check if file with same name already exists, if so, increment file
-        filename = f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_diarios_{file_number}.csv"# Create filename with incremented number
+        while os.path.exists(f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_{file_number}.csv"):
+            file_number += 1
+        filename = f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_diarios_{file_number}.csv"
         df.to_csv(filename, index=False)# Save DataFrame to CSV file
     
     return df
 
 
 @app.get("/monthly/extraction") # Defines a GET endpoint for downloading monthly data for countries
-def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download monthly data, arg : data type, keyword,
-    if funcion_obtener_datos == "tone":# Checks if tone is specified
+def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country: str):
+    if funcion_obtener_datos == "tone":
         df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no") # function avoids downloading again
         df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
         
         df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index()# group by month and sum values
-    elif funcion_obtener_datos == "popularity":# Checks if popularity is specified
-        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country,"no")# function avoids downloading again
-        df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
+    elif funcion_obtener_datos == "popularity":# 
+        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country,"no")
+        df['datetime'] = pd.to_datetime(df['datetime'])
         df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index() # group by month and sum values
 
     else:
@@ -66,7 +66,7 @@ def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country:
 
     carpeta_padre = "data_mensual" # creat parent folder
     if not os.path.exists(carpeta_padre): # Check if parent folder exists, if not create it
-        os.makedirs(carpeta_padre)# If not, create it
+        os.makedirs(carpeta_padre)
     
     carpeta_tipo_datos = f"{carpeta_padre}/{funcion_obtener_datos}" # Create subfolder route based on data type
     if not os.path.exists(carpeta_tipo_datos):
@@ -89,9 +89,9 @@ def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, count
         # groupby quarter and sum values
         df_quaterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index()
     elif funcion_obtener_datos == "popularity":
-        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")# Call daily data function
+        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
         df['datetime'] = pd.to_datetime(df['datetime'])
-        df_quaterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() # groupby quarter and sum values
+        df_quaterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() 
     else:
         return {"mensaje": "Función de obtener datos no válida"}
 
@@ -115,9 +115,9 @@ def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, count
 #  Defines a GET endpoint cleaning data 
 def limpiar_dataframe(df: pd.DataFrame,freq:str): # function to clean dataframe, arg : dataframe, frequency
     # Convert datetime column to datetime type, it fills missing dates with 0
-    start_date = df['datetime'].min()# Get min date
-    end_date = df['datetime'].max()# Get max date
-    all_dates = pd.date_range(start=start_date, end=end_date, freq=freq)# Create date range between start and end date
+    start_date = df['datetime'].min()
+    end_date = df['datetime'].max()
+    all_dates = pd.date_range(start=start_date, end=end_date, freq=freq)
     df = df.set_index('datetime').reindex(all_dates).fillna(0).reset_index()# fill missing dates with 0
     df = df.rename(columns={'index': 'datetime'}) # rename datetime column as datetime
     df_limpio= df.dropna().drop_duplicates()# drop na and duplicate values
@@ -128,30 +128,30 @@ def limpiar_dataframe(df: pd.DataFrame,freq:str): # function to clean dataframe,
 @app.get("/clean")
 def endpoint_limpiar_dataframe(funcion_obtener_datos: str, keyword: str, country: str,periodo:str): # function to clean dataframe, arg : data type, keyword, country, period
     if funcion_obtener_datos.lower() == "tone":
-        results = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
+        results = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")# 
         df = pd.DataFrame(results)# Convert results to DataFrame
         folder_name = "tone"# Set folder name
     elif funcion_obtener_datos.lower() == "popularity":
         results = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
-        df = pd.DataFrame(results)# Convert results to DataFrame
-        folder_name = "popularity" # Set folder name
+        df = pd.DataFrame(results)
+        folder_name = "popularity" 
     else:
         return "Error: La función de extracción de datos especificada no es válida."
         
     if periodo.lower() == "monthly":
-        df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
-        df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index()# group by month and sum values
-        save_folder = f"./data_limpio/{folder_name}/monthly"# Set save folder
-        df_save = df_monthly# Assign monthly dataframe to clean
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index()
+        save_folder = f"./data_limpio/{folder_name}/monthly"
+        df_save = df_monthly
         df_save = limpiar_dataframe(df_save, "M") # Monthly data cleaning
     elif periodo.lower() == "diary":
-        save_folder = f"./data_limpio/{folder_name}/diary"# Set save folder
+        save_folder = f"./data_limpio/{folder_name}/diary"
         df_save = limpiar_dataframe(df,"D")
     elif periodo.lower() == "quaterly":
         df['datetime'] = pd.to_datetime(df['datetime'])
         df_trimestral = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() # group by quarter and sum values
-        save_folder = f"./data_limpio/{folder_name}/quaterly"# Set save folder
-        df_save = df_trimestral# Assign quarterly dataframe to clean
+        save_folder = f"./data_limpio/{folder_name}/quaterly"
+        df_save = df_trimestral
         df_save = limpiar_dataframe(df_save,"Q") # clean quarterly data
             
     else:
@@ -162,7 +162,7 @@ def endpoint_limpiar_dataframe(funcion_obtener_datos: str, keyword: str, country
     # save cleaned dataframe to csv file
     file_timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S") # avoid re-writing existing files by adding timestamp to filename
     filename = f"{save_folder}/{keyword}_limpio_{folder_name}_{periodo}_{country}_{file_timestamp}.csv"  # Agregar el nombre del país y el periodo de tiempo al archivo CSV
-    df_save.to_csv(filename, index=False)# Save cleaned DataFrame to CSV file with timestamp in filename to avoid overwriting
+    df_save.to_csv(filename, index=False)
     
     return f"Dates of {funcion_obtener_datos.capitalize()} has been cleaned successfully"
 
@@ -185,34 +185,34 @@ def extraccion_total(funcion_obtener_datos: str, keyword: str, periodo: str):# f
     countries = ['Austria', 'Belgium', 'Switzerland', 'Cyprus', 'EZ', 'Germany', 'Denmark', 'Greece', 'Spain', 'Finland', 'France', 'Ireland', 'Italy', 'Luxembourg', 'Netherlands', 'Norway', 'Portugal', 'Sweden', 'Slovenia']
     for country in countries:
         f = Filters(keyword=keyword, # loop through countries list
-                    start_date="2017-01-01",# define start/end date range
+                    start_date="2017-01-01",
                     end_date="2023-12-31",
-                    country=country)# add country to filter
+                    country=country)
         gd = GdeltDoc() 
         
         if funcion_obtener_datos.lower() == "tone":
-            results = gd.timeline_search("timelinetone", f)# call timeline_search passing filter
-            df = pd.DataFrame(results)# convert results to dataframe
-            folder_name = "tone"# set folder name
-        elif funcion_obtener_datos.lower() == "popularity":# check data type
-            results = gd.timeline_search("timelinevol", f)# call timeline_search passing filter
-            df = pd.DataFrame(results)# convert results to dataframe
+            results = gd.timeline_search("timelinetone", f)
+            df = pd.DataFrame(results)
+            folder_name = "tone"
+        elif funcion_obtener_datos.lower() == "popularity":
+            results = gd.timeline_search("timelinevol", f)
+            df = pd.DataFrame(results)
             folder_name = "popularity"
         else:
             return "Error: La función de extracción de datos especificada no es válida."
         
-        if periodo.lower() == "monthly":# check period
-            df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
-            df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index()# group by month and sum values, reset index for saving
-            save_folder = f"./data_final/{folder_name}/monthly/{keyword}" # Set save folder
-            df_save = df_monthly# Assign monthly dataframe to clean
+        if periodo.lower() == "monthly":
+            df['datetime'] = pd.to_datetime(df['datetime'])
+            df_monthly = df.groupby(pd.Grouper(key='datetime', freq='M')).sum().reset_index()
+            save_folder = f"./data_final/{folder_name}/monthly/{keyword}"
+            df_save = df_monthly
             df_save = limpiar_dataframe(df_save, "M") # monthly data cleaning
-        elif periodo.lower() == "quaterly":# check period == "quaterly"
-            df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
-            df_trimestral = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() # group by quarter and sum values, reset index for saving
-            save_folder = f"./data_final/{folder_name}/quaterly/{keyword}"# Set save folder with quaterly folder
-            df_save = df_trimestral #Assign quarterly dataframe to clean
-            df_save = limpiar_dataframe(df_save,"Q") # quartely data for cleaning   
+        elif periodo.lower() == "quaterly":
+            df['datetime'] = pd.to_datetime(df['datetime'])
+            df_trimestral = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() 
+            save_folder = f"./data_final/{folder_name}/quaterly/{keyword}"
+            df_save = df_trimestral
+            df_save = limpiar_dataframe(df_save,"Q") # quartely data cleaning   
             
         else:
             return "Error: El intervalo especificado no es válido."
@@ -224,25 +224,25 @@ def extraccion_total(funcion_obtener_datos: str, keyword: str, periodo: str):# f
     
     return f"Mean of {funcion_obtener_datos.capitalize()} data downloaded successfully for all countries"
 
-@app.get("/eda/") # perform basic exploratory data analysis
-def perform_eda(data_source: str, keyword: str, country: str, frequency: str): # function to perform eda, arg : data source, keyword, country, frequency
-    if data_source == "tone": # check data source
-        if frequency.lower() == "diary":# check frequency
-            df = descargar_datos_diarios("tone", keyword, country, "no")# call diary data download function
+@app.get("/eda/")
+def perform_eda(data_source: str, keyword: str, country: str, frequency: str):
+    if data_source == "tone":
+        if frequency.lower() == "diary":
+            df = descargar_datos_diarios("tone", keyword, country, "no")
         elif frequency.lower() == "monthly":
-            df = descargar_datos_mensuales("tone", keyword, country)# call monthly data download function
+            df = descargar_datos_mensuales("tone", keyword, country)
         elif frequency.lower() == "quaterly":
-            df = descargar_datos_trimestrales("tone", keyword, country)# 
+            df = descargar_datos_trimestrales("tone", keyword, country)
         else:
             return {"error": "Invalid frequency"}
 
-    elif data_source == "popularity":# check data source
+    elif data_source == "popularity":
         if frequency.lower() == "diary":
-            df = descargar_datos_diarios("popularity", keyword, country, "no")# call diary data download function
+            df = descargar_datos_diarios("popularity", keyword, country, "no")
         elif frequency.lower() == "monthly":
-            df = descargar_datos_mensuales("popularity", keyword, country)# call monthly data download function
+            df = descargar_datos_mensuales("popularity", keyword, country)
         elif frequency.lower() == "quaterly":
-            df = descargar_datos_trimestrales("popularity", keyword, country)# call quarterly data download function
+            df = descargar_datos_trimestrales("popularity", keyword, country)
         else:
             return {"error": "Invalid frequency"}
 
@@ -250,24 +250,24 @@ def perform_eda(data_source: str, keyword: str, country: str, frequency: str): #
         return {"error": "Invalid data source"}
 
     eda_results = {
-        "num_rows": len(df),  # number of rows
-        "num_columns": len(df.columns),  # number of columns
-        "column_names": list(df.columns),  # List of column names
-        "null_counts": df.isnull().sum().to_dict(),  # Count of null values por columna
-        "data_types": df.dtypes.to_dict(),  # Types of data por columna
-        "descriptive_stats": df.describe().to_dict()} # Descriptive stats 
+        "num_rows": len(df),  # Número de filas
+        "num_columns": len(df.columns),  # Número de columnas
+        "column_names": list(df.columns),  # Lista de nombres de columnas
+        "null_counts": df.isnull().sum().to_dict(),  # Recuento de valores nulos por columna
+        "data_types": df.dtypes.to_dict(),  # Tipos de datos de cada columna
+        "descriptive_stats": df.describe().to_dict()} # Estadísticas descriptivas
 
-    eda_folder = "EDA"# create EDA folder
-    if not os.path.exists(eda_folder):# check if folder exists
-        os.makedirs(eda_folder)# create folder
+    eda_folder = "EDA"
+    if not os.path.exists(eda_folder):
+        os.makedirs(eda_folder)
 
-    
+    # y creamos el archivo
     file_number = 1
-    while os.path.exists(f"{eda_folder}/eda_{data_source}_{file_number}.csv"):# loop through csv files in folder
-        file_number += 1    # increment file number
-    filename = f"{eda_folder}/eda_{data_source}_{file_number}.csv"# generate new filename
-    eda_df = pd.DataFrame.from_dict(eda_results, orient="index")# convert results dict to dataframe
-    eda_df.to_csv(filename, index=False)# save dataframe to csv with generated filename
+    while os.path.exists(f"{eda_folder}/eda_{data_source}_{file_number}.csv"):
+        file_number += 1
+    filename = f"{eda_folder}/eda_{data_source}_{file_number}.csv"
+    eda_df = pd.DataFrame.from_dict(eda_results, orient="index")
+    eda_df.to_csv(filename, index=False)
 
     return {"message": f"EDA results for {data_source} saved to {filename}"}
 
@@ -315,21 +315,21 @@ def calcular_media(csv_folder, column_name,output_csv: bool = False):
 @app.get("/total_mean/") # obtain total mean across all csvs
 def total_mean():
 # folder routes
-    tono_mensual_csv_folder = "./data_final/tone/monthly"# folder for tone monthly csvs
-    popularity_mensual_csv_folder = "./data_final/popularity/monthly"# folder for popularity monthly csvs
-    tono_trimestral_csv_folder = "./data_final/tone/quaterly"# folder for tone quaterly csvs
-    popularity_trimestral_csv_folder = "./data_final/popularity/quaterly"# folder for popularity quaterly csvs
+    tono_mensual_csv_folder = "./data_final/tone/monthly"
+    popularity_mensual_csv_folder = "./data_final/popularity/monthly"
+    tono_trimestral_csv_folder = "./data_final/tone/quaterly"
+    popularity_trimestral_csv_folder = "./data_final/popularity/quaterly"
 
     # mean tone / popularity monthly and quaterly   
-    media_tono_mensual = calcular_media(tono_mensual_csv_folder, 'Average Tone')# calculate mean tone monthly
-    media_popularity_mensual = calcular_media(popularity_mensual_csv_folder, 'Volume Intensity')# calculate mean popularity monthly
-    media_tono_trimestral = calcular_media(tono_trimestral_csv_folder, 'Average Tone')# calculate mean tone quaterly
-    media_popularity_trimestral = calcular_media(popularity_trimestral_csv_folder, 'Volume Intensity')# calculate mean popularity quaterly
+    media_tono_mensual = calcular_media(tono_mensual_csv_folder, 'Average Tone')
+    media_popularity_mensual = calcular_media(popularity_mensual_csv_folder, 'Volume Intensity')
+    media_tono_trimestral = calcular_media(tono_trimestral_csv_folder, 'Average Tone')
+    media_popularity_trimestral = calcular_media(popularity_trimestral_csv_folder, 'Volume Intensity')
 
     # Save total mean dataframes
-    media_tono_mensual.to_csv("./data_final/media_tono_mensual/media_tono_mensual.csv", index=True)# Save tone monthly as csv , index =True to save index
-    media_popularity_mensual.to_csv("./data_final/media_popularity_mensual/media_popularity_mensual.csv", index=True)# Save popularity monthly as csv , index =True to save index
-    media_tono_trimestral.to_csv("./data_final/media_tono_trimestral/media_tono_trimestral.csv", index=True)# Save tone quaterly as csv , index =True to save index
-    media_popularity_trimestral.to_csv("./data_final/media_popularidad_trimestral/media_popularity_trimestral.csv", index=True)# Save popularity quaterly as csv , index =True to save index
+    media_tono_mensual.to_csv("./data_final/media_tono_mensual/media_tono_mensual.csv", index=True)
+    media_popularity_mensual.to_csv("./data_final/media_popularity_mensual/media_popularity_mensual.csv", index=True)
+    media_tono_trimestral.to_csv("./data_final/media_tono_trimestral/media_tono_trimestral.csv", index=True)
+    media_popularity_trimestral.to_csv("./data_final/media_popularidad_trimestral/media_popularity_trimestral.csv", index=True)
     return "Mean values calculated and saved successfully."
 
