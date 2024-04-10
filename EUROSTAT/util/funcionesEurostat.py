@@ -221,4 +221,4 @@ def generar_serie_suma(directorio_entrada):
 
     # Guardar la serie resultante en un archivo CSV
     serie_vacia = serie_vacia['total']
-    serie_vacia.to_csv('data/serie/serie_EU.csv',index=False)
+    serie_vacia.to_csv('data/serie/serie_EU.csv')
