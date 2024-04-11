@@ -4,44 +4,86 @@ A model based on ML techniques to predict a socio-economic variable in real-time
 This README file provides an overview of the folder structure in this repository, along with a brief description of each folder's contents
 
 # Project Folder Structure
-
-├── Documentación<br>
-│ ├── DIVISION EN MINI TAREAS.docx<br>
-│ ├── DOCUMENTACION API GDELT.md<br>
-│ ├── DOCUMENTACION API PYTRENDS.md<br>
-│ ├── DOCUMENTACION CODE GDELT.md<br>
-│ └── ESQUEMA PRIMERA REUNION RANDBEE.docx<br>
+.
+├── BIG QUERY TEST <br>
+│   └── prueba big query.sql<br>
+├── DATA CLEANING<br>
+│   └── DATOS GDELT Y GTREND.zip<br>
+├── DOCUMENTATION<br>
+│   ├── EUROSTAT_API.md<br>
+│   ├── GDELT_API.md<br>
+│   └── GTRENDS_API.md<br>
 ├── EUROSTAT<br>
-│ ├── eurostatAPI.py<br>
-│ ├── nuevos notebooks<br>
-│ │ ├── eurostat.ipynb<br>
-│ │ ├── eurostat2.ipynb<br>
-│ │ └── eurostat3.ipynb<br>
-│ ├── src<br>
-│ │ ├── eurostat2.py<br>
-│ │ └── funcionesEurostat.py<br>
-│ └── util<br>
-│ └── funcionesEurostat.ipynb<br>
+│   ├── Eurostat_API(c).py<br>
+│   ├── eurostatAPI.py<br>
+│   ├── eurostatAPI_EDA_TEST.py<br>
+│   ├── nuevos notebooks<br>
+│   │   ├── eurostat.ipynb<br>
+│   │   ├── eurostat2.ipynb<br>
+│   │   ├── eurostat3.ipynb<br>
+│   │   ├── eurostat4.ipynb<br>
+│   │   ├── eurostat5.ipynb<br>
+│   │   └── eurostat6.<br>
+│   ├── src<br>
+│   │   ├── eurostat2.py<br>
+│   │   └── funcionesEurostat.py<br>
+│   └── util<br>
+│       ├── funcionesEurostat.ipynb<br>
+│       ├── funcionesEurostat.py<br>
+│       └── funcionesEurostat2.py<br>
 ├── GDELT<br>
-│ ├── LLAMADAS A CADA ENDPOINT EJEMPLOS.docx<br>
-│ ├── PRIMER MODELO API GDELT.ipynb<br>
-│ ├── gdelt1.py<br>
-│ ├── prueba funciones API gdelt.ipynb<br>
-│ └── prueba gdelt.ipynb<br>
-├── Gtrends<br>
-│ ├── API PARA PYTRENDS.ipynb<br>
-│ ├── Documentation<br>
-│ │ ├── Gtrends(ES).md<br>
-│ │ └── Gtrends.md<br>
-│ └── Notebooks<br>
-│ ├── pytrends_part0.ipynb<br>
-│ └── pytrends_part1.ipynb<br>
-├── Prueba Big Query<br>
-│ └── prueba big query.sql<br>
+│   ├── Antiguas Versiones API<br>
+│   │   ├── GDELT_API(C).py<br>
+│   │   ├── PRIMER MODELO API GDELT.ipynb<br>
+│   │   ├── gdelt.py<br>
+│   │   ├── gdelt2.py<br>
+│   │   ├── gdelt3.py<br>
+│   │   ├── gdelt4.py<br>
+│   │   ├── gdelt5.py<br>
+│   │   ├── gdelt5_EDA_TEST.py<br>
+│   │   ├── gdelt6.py<br>
+│   │   └── gdelt7.py<br>
+│   ├── GDELT_API.py<br>
+│   ├── GDELT_API_org.py<br>
+│   ├── LLAMADAS A CADA ENDPOINT EJEMPLOS.docx<br>
+│   ├── Notebooks<br>
+│   │   ├── PRUEBA LLAMADA final.ipynb<br>
+│   │   ├── prueba funciones 2.ipynb<br>
+│   │   ├── prueba funciones API gdelt.ipynb<br>
+│   │   ├── prueba gdelt.ipynb<br>
+│   │   └── ultima prueba.ipynb<br>
+│   └── data<br>
+│       └── final<br>
+│           ├── gdelt_monthly.csv<br>
+│           └── gdelt_quaterly.csv<br>
+├── GTRENDS<br>
+│   ├── API PARA PYTRENDS.ipynb<br>
+│   ├── Documentation<br>
+│   │   ├── Gtrends(ES).md<br>
+│   │   └── Gtrends.md<br>
+│   ├── Notebooks<br>
+│   │   ├── pytrends_part0.ipynb<br>
+│   │   └── pytrends_part1.ipynb<br>
+│   └── data<br>
+│       └── final<br>
+│           ├── gtrend_monthly.csv<br><br>
+│           ├── gtrend_monthly_2017.csv<br>
+│           ├── gtrend_quaterly.csv<br>
+│           └── gtrend_quaterly_2017.csv<br>
+├── MEMOIR<br>
+│   ├── Ranbee_Memoir_DRAFT (1).docx<br>
+│   ├── Ranbee_Memoir_DRAFT (1).pdf<br>
+│   └── TEAM_TASKS<br>
+│       ├── DIVISION EN MINI TAREAS.docx<br>
+│       ├── ESQUEMA PRIMERA REUNION RANDBEE.docx<br>
+│       └── Trello_board.pdf<br>
+├── MODELS<br>
+│   ├── modelAPI.ipynb<br>
+│   ├── modelAPI.py<br>
+│   └── modelAPIv2.ipynb<br>
+└── README.md<br>
 
-
-
-## Folder Descriptions
+## Folder Descriptions<br>
 
 - **Documentación**: Documentation files related to the project.
 
