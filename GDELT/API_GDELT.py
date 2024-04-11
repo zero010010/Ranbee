@@ -29,7 +29,21 @@ def funcion_obtener_datos(funcion_obtener_datos: str, keyword: str, country: str
     Returns:
         pandas.DataFrame: data TO Pandas DataFrame.
     """
-def descargar_datos_diarios(funcion_obtener_datos: str, keyword: str, country: str,descarga: str):   
+
+def descargar_datos_diarios(funcion_obtener_datos: str, keyword: str, country: str,descarga: str):  
+    """
+Retrieves daily data from the GDELT API and filters by the specified keyword and country. 
+If "descarga" = "yes", saves the data to a CSV file.
+
+Args:
+    funcion_obtener_datos (str): Type of data, "tone" or "popularity".
+    keyword (str): Keyword.
+    country (str): Country to filter.
+    descarga (str): Download to a CSV file ("yes") or not ("no").
+
+Returns:
+    pandas.DataFrame: Data as a Pandas DataFrame.
+""" 
     f = Filters(keyword=keyword, 
                     start_date="2017-01-01",
                     end_date="2023-12-31",
@@ -63,7 +77,13 @@ def descargar_datos_diarios(funcion_obtener_datos: str, keyword: str, country: s
     
     return df
 
-"""
+
+
+
+@app.get("/monthly/extraction") # Defines a GET endpoint for downloading monthly data for countries
+def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download monthly data, arg : data type, keyword,
+
+ """
 def descargar_datos_mensuales: Defines a GET endpoint for downloading monthly data for countries.
 
 download monthly data for a specified keyword and country. 
@@ -83,8 +103,7 @@ Returns:
 """
 
 
-@app.get("/monthly/extraction") # Defines a GET endpoint for downloading monthly data for countries
-def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download monthly data, arg : data type, keyword,
+
     if funcion_obtener_datos == "tone":# Checks if tone is specified
         df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no") # function avoids downloading again
         df['datetime'] = pd.to_datetime(df['datetime'])# convert datetime column to datetime
@@ -166,38 +185,12 @@ def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, count
     return f"Data of {funcion_obtener_datos.capitalize()} downloaded successfully"
     
 
-def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download quarterly data, arg : data type, keyword, country
-    if funcion_obtener_datos == "tone":
-        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
-        df['datetime'] = pd.to_datetime(df['datetime'])
-        # groupby quarter and sum values
-        df_quaterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index()
-    elif funcion_obtener_datos == "popularity":
-        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")# Call daily data function
-        df['datetime'] = pd.to_datetime(df['datetime'])
-        df_quaterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index() # groupby quarter and sum values
-    else:
-        return {"mensaje": "Función de obtener datos no válida"}
-
-    carpeta_padre = "data_trimestral" # creat parent folder 
-    if not os.path.exists(carpeta_padre):
-        os.makedirs(carpeta_padre)
-    
-    carpeta_tipo_datos = f"{carpeta_padre}/{funcion_obtener_datos}" #  Create subfolder route
-    if not os.path.exists(carpeta_tipo_datos):
-        os.makedirs(carpeta_tipo_datos)
-    
-    # csv file path 
-    file_number = 1
-    while os.path.exists(f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_{file_number}.csv"):
-        file_number += 1
-    filename = f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_{file_number}.csv"
-    df_quaterly.to_csv(filename, index=False)# Save DataFrame to CSV file
-    
-    return f"Data of {funcion_obtener_datos.capitalize()} downloaded successfully"
 
 
-"""
+
+def limpiar_dataframe(df: pd.DataFrame,freq:str): # function to clean dataframe, arg : dataframe, frequency
+
+    """
 Cleans a DataFrame by converting the datetime column to datetime type, filling missing dates with 0, 
 and removing any rows with NaN values or duplicate rows.
 
@@ -208,7 +201,6 @@ Args:
 Returns:
     pd.DataFrame: The cleaned DataFrame.
 """
-def limpiar_dataframe(df: pd.DataFrame,freq:str): # function to clean dataframe, arg : dataframe, frequency
     # Convert datetime column to datetime type, it fills missing dates with 0
     start_date = df['datetime'].min()# Get min date
     end_date = df['datetime'].max()# Get max date
@@ -278,7 +270,20 @@ def limpiar_y_guardar_datos(funcion_obtener_datos: str, keyword: str, country: s
 
     return f"Data of {funcion_obtener_datos.capitalize()} cleaned and saved successfully"
 
+
 def endpoint_limpiar_dataframe(funcion_obtener_datos: str, keyword: str, country: str,periodo:str): # function to clean dataframe, arg : data type, keyword, country, period
+    """
+Cleans and saves a DataFrame based on the specified data type, keyword, country, and time period.
+
+Args:
+    funcion_obtener_datos (str): The type of data to be cleaned, either "tone" or "popularity".
+    keyword (str):  keyword 
+    country (str): country 
+    periodo (str): time period to be used.
+
+Returns:
+    str: message: data has been cleaned successfully.
+"""
     if funcion_obtener_datos.lower() == "tone":
         results = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
         df = pd.DataFrame(results)# Convert results to DataFrame
@@ -377,7 +382,7 @@ def extraccion_total(funcion_obtener_datos: str, keyword: str, periodo: str):# f
     return f"Mean of {funcion_obtener_datos.capitalize()} data downloaded successfully for all countries"
 
 @app.get("/eda/") # perform basic exploratory data analysis
-@app.get("/eda/")
+
 def eda(data_source: str, keyword: str, country: str, frequency: str):
     """
     Performs exploratory data analysis (EDA) on the downloaded data from the GDELT API.
@@ -485,7 +490,7 @@ def calcular_media(csv_folder, column_name,output_csv: bool = False):
         return media_df
 
 @app.get("/total_mean/") # obtain total mean across all csvs
-@app.get("/total_mean/")
+
 def total_mean(monthly_folder, quarterly_folder):
     """
     Calculates the mean values of the 'Average Tone' and 'Volume Intensity' columns across all CSV files
