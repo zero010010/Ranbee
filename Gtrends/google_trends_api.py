@@ -6,13 +6,15 @@ import pandas as pd
 import time
 import requests
 
+from fastapi.responses import RedirectResponse
+
 
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to my Gtrend_API application!"}
+    return RedirectResponse(url="/docs")
 
 url = 'https://trends.google.com/trends/'
 response = requests.get(url, timeout=10)
@@ -22,6 +24,7 @@ country_list = ['BE', 'CH', 'DE', 'DK', 'EE', 'GR', 'ES',
        'FI', 'FR', 'HU', 'IE', 'IS', 'IT','LU', 'ME',
        'MT', 'NL', 'NO', 'PL', 'PT', 'SE', 'SI','GB',
         'LT', 'LV']
+
 
 def obtener_datos_google_trends_mensual(palabra_clave, paises=country_list, fecha_inicio='2014-01-01', fecha_fin='2024-03-31'):
     try:
@@ -73,7 +76,7 @@ def save_csv_handler(topic: str):
         
         return {"message": f"CSV file for '{topic}' saved successfully"}
 
-#use the same endpoints of gdelt that what we agreed on with the team
+# para la limpieza we will use the same endpoints of gdelt that is  what we agreed on with the team
 
 
 
