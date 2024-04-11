@@ -1,3 +1,7 @@
+# url = 'http://127.0.0.1:8000/v1/setupv0?reduce="yes" or "no"
+# url = 'http://127.0.0.1:8000/v1/train?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
+# url = 'http://127.0.0.1:8000/v1/metrics?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
+# url = 'http://127.0.0.1:8000/v1/predict?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"&DICCIONARIO CON LOS DATOS A PREDECIR
 from fastapi import FastAPI
 import pandas as pd
 import numpy as np
@@ -84,7 +88,7 @@ def setup_api(reduce: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
         return "The data has been split into training and testing sets and saved to CSV files successfully"
         
         
-@app.get("/v1/train") # revisar si funcionan las metricas asi, si no eliminar llamada interna y meter todo en setup
+@app.get("/v1/train")
 def train(model: str,reduce: str):
     """Función para entrenar el modelo. Carga los datos para entrenar el modelo,
     y, una vez hecho, guarda EL MODELO en tu ordenador, su ruta y las metricas del modelo. 
