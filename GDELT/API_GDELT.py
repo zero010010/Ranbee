@@ -82,6 +82,7 @@ Returns:
     str: A message indicating that the data was downloaded successfully.
 """
 
+
 @app.get("/monthly/extraction") # Defines a GET endpoint for downloading monthly data for countries
 def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download monthly data, arg : data type, keyword,
     if funcion_obtener_datos == "tone":# Checks if tone is specified
@@ -114,9 +115,10 @@ def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country:
     
     return f"Data of {funcion_obtener_datos.capitalize()} downloaded successfully"
 
-@app.get("/quaterly/extraction") # Defines a GET endpoint for downloading quarterly data
-@app.get("/quaterly/extraction")
 
+@app.get("/quaterly/extraction") # Defines a GET endpoint for downloading quarterly data
+
+def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, country: str):
     """
     Defines a GET endpoint for downloading quarterly data for countries.
 
@@ -134,6 +136,34 @@ def descargar_datos_mensuales(funcion_obtener_datos: str, keyword: str, country:
     Returns:
         str: A message indicating that the data was downloaded successfully.
     """
+    if funcion_obtener_datos == "tone":
+        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country, "no")
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        
+        df_quarterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index()
+    elif funcion_obtener_datos == "popularity":
+        df = descargar_datos_diarios(funcion_obtener_datos, keyword, country,"no")
+        df['datetime'] = pd.to_datetime(df['datetime'])
+        df_quarterly = df.groupby(pd.Grouper(key='datetime', freq='Q')).sum().reset_index()
+
+    else:
+        return {"mensaje": "Función de obtener datos no válida"}
+
+    carpeta_padre = "data_trimestral"
+    if not os.path.exists(carpeta_padre):
+        os.makedirs(carpeta_padre)
+    
+    carpeta_tipo_datos = f"{carpeta_padre}/{funcion_obtener_datos}"
+    if not os.path.exists(carpeta_tipo_datos):
+        os.makedirs(carpeta_tipo_datos)
+    
+    file_number = 1
+    while os.path.exists(f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_{file_number}.csv"):
+        file_number += 1
+    filename = f"{carpeta_tipo_datos}/csv_{funcion_obtener_datos}_{country}_trimestral_{file_number}.csv"
+    df_quarterly.to_csv(filename, index=False)
+    
+    return f"Data of {funcion_obtener_datos.capitalize()} downloaded successfully"
     
 
 def descargar_datos_trimestrales(funcion_obtener_datos: str, keyword: str, country: str):# Function to download quarterly data, arg : data type, keyword, country
