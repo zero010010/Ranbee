@@ -1,7 +1,8 @@
-# url = 'http://127.0.0.1:8000/v1/setupv0?reduce="yes" or "no"
+# url = 'http://127.0.0.1:8000/setupv0?reduce=yes or "no"
 # url = 'http://127.0.0.1:8000/v1/train?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
 # url = 'http://127.0.0.1:8000/v1/metrics?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
 # url = 'http://127.0.0.1:8000/v1/predict?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"&DICCIONARIO CON LOS DATOS A PREDECIR
+# OJO, EL PREDICT ES UNA LLAMADA POST
 from fastapi import FastAPI
 import pandas as pd
 import numpy as np
@@ -22,7 +23,7 @@ import requests
 app = FastAPI()
 
 @app.get("/setupv0")
-def setup_api(reduce: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
+def setup_api(red: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
     """
     Función que hace el setup desde el historico, separa en train y test
     Parametros de entrada: reduce, str, para elegir la opcion de reducir la dimensionalidad con selectkbest o no
@@ -71,14 +72,12 @@ def setup_api(reduce: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
     # luego filtrar las caracteristicas
     X_selected = X[:, selected_features]
     
-    if reduce.lower == "yes":
+    if red.lower() == "yes": # revisar esto, no se descarga, ME FALTABAN LOS PARENTESIS!!! PATETICO JAJAJAJAAJ
         X_train, X_test, y_train, y_test = train_test_split(X_selected, y, test_size=0.2, random_state=42)
         pd.DataFrame(X_train).to_csv('X_train_reduce.csv')
         pd.DataFrame(X_test).to_csv('X_test_reduce.csv')
         pd.DataFrame(y_train).to_csv('y_train_reduce.csv')
-        pd.DataFrame(y_test).to_csv('y_test_reduce.csv')
-        return "The data has been split into training and testing sets and saved to CSV files successfully"
-    
+        pd.DataFrame(y_test).to_csv('y_test_reduce.csv')   
     else:
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         pd.DataFrame(X_train).to_csv('X_train.csv')
@@ -89,24 +88,23 @@ def setup_api(reduce: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
         
         
 @app.get("/v1/train")
-def train(model: str,reduce: str):
+def train(model: str,red: str):
     """Función para entrenar el modelo. Carga los datos para entrenar el modelo,
     y, una vez hecho, guarda EL MODELO en tu ordenador, su ruta y las metricas del modelo. 
-    Input: ninguno
+    Input: model,str, para seleccionar el modelo elegido y reduce,str, para confirmar si se usa selecktbest o no
     Output: dict: JSON con las metricas del modelo y la ruta donde se ha guardado"""        
-    if reduce == "yes":
+    if red.lower() == "yes":
         X_train_reduce = pd.read_csv('X_train_reduce.csv')
         y_train_reduce = pd.read_csv('y_train_reduce.csv')
         y_test_reduce = pd.read_csv('y_test_reduce.csv')
-        X_test_reduce = pd.read_csv('X_test_reduce.csv')
-            
+        X_test_reduce = pd.read_csv('X_test_reduce.csv')     
     else:
         X_train = pd.read_csv('X_train.csv')
         y_train = pd.read_csv('y_train.csv')
         y_test = pd.read_csv('y_test.csv')
         X_test = pd.read_csv('X_test.csv')
     
-    if model.lower == "lstm": # a pesar de estar arriba especificado, volvemos a poner aqui, la lectura
+    if model.lower() == "lstm": # a pesar de estar arriba especificado, volvemos a poner aqui, la lectura
         # SOLO EN ESTE CASO, porque no aceptaría un NO en reduce, Y POR SI EL CLIENTE LO INTRODUCE POR ERROR
         X_train = pd.read_csv('X_train_reduce.csv')
         y_train = pd.read_csv('y_train_reduce.csv')
@@ -125,62 +123,42 @@ def train(model: str,reduce: str):
         model.fit(X_train, y_train, epochs=20, batch_size=8, validation_data=(X_test, y_test))
         with open('LSTM.pkl', 'wb') as f:
             pickle.dump(model, f)
-        metrics_response = requests.get('http://127.0.0.1:8000/v1/metrics') #Para obtener métricas del otro endpoint
-        metrics = metrics_response.json()
-        response = {"metrics": metrics,
-            "model_path": os.path.abspath('LSTM.pkl')}
-        return response
+        return "Model downloaded in pickle format"
 
-    if model.lower == "random": 
-        if reduce == "yes":     
+    if model.lower() == "random": 
+        if red == "yes":     
             rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_regressor.fit(X_train_reduce, y_train_reduce)
             with open('random_red.pkl', 'wb') as f:
                 pickle.dump(model, f)
-            metrics_response = requests.get('http://127.0.0.1:8000/v1/metrics') #Para obtener métricas del otro endpoint
-            metrics = metrics_response.json()
-            response = {"metrics": metrics,
-                "model_path": os.path.abspath('random.pkl')}
-            return response
+            return "Model downloaded in pickle format"
         else:
             rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_regressor.fit(X_train, y_train)
             with open('random.pkl', 'wb') as f:
                 pickle.dump(model, f)
-            metrics_response = requests.get('http://127.0.0.1:8000/v1/metrics') #Para obtener métricas del otro endpoint
-            metrics = metrics_response.json()
-            response = {"metrics": metrics,
-                "model_path": os.path.abspath('random.pkl')}
-            return response
+            return "Model downloaded in pickle format"
     
-    if model.lower == "xgboost":
-        if reduce == "yes":
+    if model.lower() == "xgboost":
+        if red == "yes":
             xgb_regressor = xgb.XGBRegressor(objective ='reg:squarederror', n_estimators=100, random_state=42)
             xgb_regressor.fit(X_train_reduce, y_train_reduce)
             with open('XGBOOST_red.pkl', 'wb') as f: 
                 pickle.dump(model, f)
-            metrics_response = requests.get('http://127.0.0.1:8000/v1/metrics') #Para obtener métricas del otro endpoint
-            metrics = metrics_response.json()
-            response = {"metrics": metrics,
-                "model_path": os.path.abspath('XGBOOST.pkl')}
-            return response
+            return "Model downloaded in pickle format"
         else:
             xgb_regressor = xgb.XGBRegressor(objective ='reg:squarederror', n_estimators=100, random_state=42)
             xgb_regressor.fit(X_train, y_train)
             with open('XGBOOST.pkl', 'wb') as f: 
                 pickle.dump(model, f)
-            metrics_response = requests.get('http://127.0.0.1:8000/v1/metrics') #Para obtener métricas del otro endpoint
-            metrics = metrics_response.json()
-            response = {"metrics": metrics,
-                "model_path": os.path.abspath('XGBOOST.pkl')}
-            return response
+            return "Model downloaded in pickle format"
         
 @app.get("/v1/metrics")
-def metrics(model:str,reduce:str):
+def metrics(model:str,red:str):
     """Función para obtener las métricas del modelo. Carga el modelo ya entrenado, carga los datos de test y devuelve el clasification report.
     Input: model, str, con el nombre del modelo y reduce, str, con una respuesta de yes o no.
     Output: dict: JSON con el classification report del modelo"""
-    if reduce == "yes":
+    if red.lower() == "yes":
         y_test_reduce = pd.read_csv('y_test_reduce.csv')
         X_test_reduce = pd.read_csv('X_test_reduce.csv')
             
@@ -188,7 +166,7 @@ def metrics(model:str,reduce:str):
         y_test = pd.read_csv('y_test.csv')
         X_test = pd.read_csv('X_test.csv')
     
-    if model.lower == "lstm":
+    if model.lower() == "lstm":
         with open('LSTM.pkl', 'rb') as f:
             model = pickle.load(f)
         y_pred = model.predict(X_test_reduce)
@@ -196,8 +174,8 @@ def metrics(model:str,reduce:str):
         r2 = r2_score(y_test_reduce, y_pred)
         return {"Mean Squared Error": mse, "R-squared": r2}
     
-    elif model.lower == "random":
-        if reduce == "yes":
+    elif model.lower() == "random":
+        if red.lower() == "yes":
             with open('random_red.pkl', 'rb') as f:
                 model = pickle.load(f)
             y_pred = model.predict(X_test_reduce)
@@ -212,8 +190,8 @@ def metrics(model:str,reduce:str):
             r2 = r2_score(y_test, y_pred)
             return {"Mean Squared Error": mse, "R-squared": r2}
     
-    elif model.lower == "xgboost":
-        if reduce == "yes":
+    elif model.lower() == "xgboost":
+        if red.lower() == "yes":
             with open('XGBOOST_red.pkl', 'rb') as f:
                 model = pickle.load(f)
             y_pred = model.predict(X_test_reduce)
@@ -229,18 +207,18 @@ def metrics(model:str,reduce:str):
             return {"Mean Squared Error": mse, "R-squared": r2}
         
 @app.post("/v1/predict")
-def predict(model:str, reduce: str, data: dict):
+def predict(model:str, red: str, data: dict):
     """Función para obtener prediccion. Carga el modelo, llama a la función predict del modelo pasandole los datos que le has pasado a la llamada. 
-    Input: dict: diccionario con los nombres y valores de las variables predictoras, paa nuestra prueba.
+    Input: model:str, para seleccionar el modelo, reduce:str, para elegir con SELECKTBEST O NO,dict: diccionario con los nombres y valores de las variables predictoras, para nuestra prueba.
     Output: dict: JSON con la predicción."""
-    if model.lower == "lstm":
+    if model.lower() == "lstm":
         with open('LSTM.pkl', 'rb') as f:
             model = pickle.load(f)
         data_values = [data[key] for key in data]
         prediccion = model.predict([data_values])[0]
         return {"prediccion": prediccion} # para que devuelva un json o diccionario
-    elif model.lower == "random":
-        if reduce == "yes":
+    elif model.lower() == "random":
+        if red.lower() == "yes":
             with open('random_red.pkl', 'rb') as f:
                 model = pickle.load(f)
             data_values = [data[key] for key in data]
@@ -253,8 +231,8 @@ def predict(model:str, reduce: str, data: dict):
             prediccion = model.predict([data_values])[0]
             return {"prediccion": prediccion} # para que devuelva un json o diccionario
             
-    elif model.lower == "xgboost":
-        if reduce == "yes":
+    elif model.lower() == "xgboost":
+        if red.lower() == "yes":
             with open('XGBOOST_red.pkl', 'rb') as f:
                 model = pickle.load(f)
             data_values = [data[key] for key in data]
