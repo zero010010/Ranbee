@@ -47,72 +47,72 @@ This test query retrieves a sample of 1000 rows from the GDELT dataset related t
 Please refer to the individual files and folders for more specific information about their contents and purpose.
 
 ## Project Folder Structure
-├── BIG QUERY TEST
+├── BIG QUERY TEST<br>
 │
-├── DATA CLEANING
-│ └── DATOS GDELT Y GTREND.zip
-├── DOCUMENTATION
-│ ├── EUROSTAT_API.md
-│ ├── GDELT_API.md
-│ └── GTRENDS_API.md
-├── EUROSTAT
-│ ├── Eurostat_API(c).py
-│ ├── eurostatAPI.py
-│ ├── eurostatAPI_EDA_TEST.py
-│ ├──
-│ ├── src
-│ │ ├── eurostat2.py
-│ │ └── funcionesEurostat.py
-│ └── util
-│ ├── funcionesEurostat.ipynb
-│ ├── funcionesEurostat.py
-│ └── funcionesEurostat2.py
-├── GDELT
-│ ├── Antiguas Versiones API
-│ │ ├── GDELT_API(C).py
-│ │ ├── PRIMER MODELO API GDELT.ipynb
+├── DATA CLEANING<br>
+│ └── DATOS GDELT Y GTREND.zip<br>
+├── DOCUMENTATION<br>
+│ ├── EUROSTAT_API.md<br>
+│ ├── GDELT_API.md<br>
+│ └── GTRENDS_API.md<br>
+├── EUROSTAT<br>
+│ ├── Eurostat_API(c).py<br>
+│ ├── eurostatAPI.py<br>
+│ ├── eurostatAPI_EDA_TEST.py<br>
+│ ├──<br>
+│ ├── src<br>
+│ │ ├── eurostat2.py<br>
+│ │ └── funcionesEurostat.py<br>
+│ └── util<br>
+│ ├── funcionesEurostat.ipynb<br>
+│ ├── funcionesEurostat.py<br>
+│ └── funcionesEurostat2.py<br>
+├── GDELT<br><br>
+│ ├── Antiguas Versiones API<br>
+│ │ ├── GDELT_API(C).py<br>
+│ │ ├── PRIMER MODELO API GDELT.ipynb<br>
 │ │
-│ ├── GDELT_API.py
-│ ├── GDELT_API_org.py
-│ ├── LLAMADAS A CADA ENDPOINT EJEMPLOS.docx
-│ ├── Notebooks
+│ ├── GDELT_API.py<br>
+│ ├── GDELT_API_org.py<br>
+│ ├── LLAMADAS A CADA ENDPOINT EJEMPLOS.docx<br>
+│ ├── Notebooks<br>
 │ │
-│ └── data
-│ └── final
-│ ├── gdelt_monthly.csv
-│ └── gdelt_quaterly.csv
-├── GTRENDS
-│ ├── API PARA PYTRENDS.ipynb
-│ ├── Documentation
-│ │ ├── Gtrends(ES).md
-│ │ └── Gtrends.md
-│ ├── Notebooks
+│ └── data<br>
+│ └── final<br>
+│ ├── gdelt_monthly.csv<br>
+│ └── gdelt_quaterly.csv<br>
+├── GTRENDS<br>
+│ ├── API PARA PYTRENDS.ipynb<br>
+│ ├── Documentationv
+│ │ ├── Gtrends(ES).md<br>
+│ │ └── Gtrends.md<br>
+│ ├── Notebooks<br>
 │ │
-│ └── data
-│ └── final
-│ ├── gtrend_monthly.csv
-│ ├── gtrend_monthly_2017.csv
-│ ├── gtrend_quaterly.csv
-│ └── gtrend_quaterly_2017.csv
-├── MEMOIR
-│ ├── Ranbee_Memoir_DRAFT (1).docx
-│ ├── Ranbee_Memoir_DRAFT (1).pdf
-│ └── TEAM_TASKS
-│ ├── DIVISION EN MINI TAREAS.docx
-│ ├── ESQUEMA PRIMERA REUNION RANDBEE.docx
-│ └── Trello_board.pdf
-├── MODELS
-│ ├── modelAPI.ip
+│ └── data<br>
+│ └── final<br>
+│ ├── gtrend_monthly.csv<br>
+│ ├── gtrend_monthly_2017.csv<br>
+│ ├── gtrend_quaterly.csv<br>
+│ └── gtrend_quaterly_2017.csv<br>
+├── MEMOIR<br>
+│ ├── Ranbee_Memoir_DRAFT (1).docx<br>
+│ ├── Ranbee_Memoir_DRAFT (1).pdf<br>
+│ └── TEAM_TASKS<br>
+│ ├── DIVISION EN MINI TAREAS.docx<br>
+│ ├── ESQUEMA PRIMERA REUNION RANDBEE.docx<br>
+│ └── Trello_board.pdf<br>
+├── MODELS<br>
+│ ├── modelAPI.ip<br>
 
 
-## Contacts
+## Contacts<br>
 
-- cjimpar@gmail.com
-- juanmiguelopezpinero@icloud.com
-- ricardogotal@gmail.com
+- cjimpar@gmail.com<br>
+- juanmiguelopezpinero@icloud.com<br>
+- ricardogotal@gmail.com<br>
 
 
-Clone this repo: `git clone https://github.com/zero010010/Ranbee.git`
+Clone this repo: `git clone https://github.com/zero010010/Ranbee.git`<br>
 
 
 
