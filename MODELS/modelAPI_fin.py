@@ -1,9 +1,12 @@
-# url = 'http://127.0.0.1:8000/setupv0?reduce=yes or "no"
-# url = 'http://127.0.0.1:8000/v1/train?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
-# url = 'http://127.0.0.1:8000/v1/metrics?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"
-# url = 'http://127.0.0.1:8000/v1/predict?model="random"or"xgboost"or"lstm"&reduce="yes" or "no"&DICCIONARIO CON LOS DATOS A PREDECIR
+# url = 'http://127.0.0.1:8000/setupv0?red=yes or no
+# url = 'http://127.0.0.1:8000/v1/train?model="random"or"xgboost"or"lstm"&red=yes or no
+# url = 'http://127.0.0.1:8000/v1/metrics?model="random"or"xgboost"or"lstm"&red=yes or no
+# url = 'http://127.0.0.1:8000/v1/predict?model="random"or"xgboost"or"lstm"&red="yes" or "no"&DICCIONARIO CON LOS DATOS A PREDECIR
+# url = http://127.0.0.1:8000/docs PARA LA ORGANIZACION
+# url = 'http://127.0.0.1:8000/v1/predict?model=random&red=no&data=0,0.18800292611558156,0.8007448789571692,0.8626760563380282,0.5468164794007492,0.08638360175695461,0.21814254859611237,0.35119047619047616,0.8007448789571692,0.8626760563380282,0.5468164794007492,0.08638360175695461,0.21814254859611237,0.35119047619047616,0.3685106382978691,0.2064220183486662,0.4118895966029621,0.09144551263600234,0.12853107344632816,0.5345285524568394,0.536531057927362,0.5435265033145533,1.0,0.831334645341426,0.5553603225473825,0.6842047996977231,0.21945866861741048,0.09656181419166066,0.08412582297000726,0.6052141527001864,0.32588454376163867,0.5046554934823093,1.0000000000000002,0.8186619718309858,0.8433098591549297,0.5318352059925094,0.4775280898876405,0.3857677902621724,0.060029282576866766,0.07027818448023426,0.057101024890190345,0.1936645068394528,0.08999280057595394,0.10583153347732177,0.0,0.5952380952380952,0.0,0.6052141527001864,0.32588454376163867,0.5046554934823093,1.0000000000000002,0.8186619718309858,0.8433098591549297,0.5318352059925094,0.4775280898876405,0.3857677902621724,0.060029282576866766,0.07027818448023426,0.057101024890190345,0.1936645068394528,0.08999280057595394,0.10583153347732177,0.0,0.5952380952380952,0.0,0.43744680851063866,0.22042553191489003,0.3123404255319161,0.3623853211009182,0.20183486238530823,0.4403669724770442,0.42250530785562257,0.1910828025477684,0.39490445859871326,0.07466467100339613,0.026193080421391846,0.09107132577283947,0.18008474576270078,0.11581920903954343,0.15536723163841878,0.36188579017264055,0.07990261177512159,0.3760513501549353,0.6727720936126899,0.5324640468878707,0.5923625592828305,0.699007512231563,0.5752800165001182,0.6357946245620701,0.7927313995286758,0.41381035640980696,0.6323306964210081,0.807588060072711,0.8814650290932436,0.7879865003079789,0.6760692236731287,0.48445567707060994,0.29741445829991336,0.5557465001110798,0.35333563073219976,0.5775363370948867
 # OJO, EL PREDICT ES UNA LLAMADA POST
 from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 import pandas as pd
 import numpy as np
 import json
@@ -23,10 +26,10 @@ import requests
 app = FastAPI()
 
 @app.get("/setupv0")
-def setup_api(red: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
+def setup_api(red: str): # SI RED ES SI, SE HACER SELECKT BEST, SI NO NO
     """
     Función que hace el setup desde el historico, separa en train y test
-    Parametros de entrada: reduce, str, para elegir la opcion de reducir la dimensionalidad con selectkbest o no
+    Parametros de entrada: red, str, para elegir la opcion de reducir la dimensionalidad con selectkbest o no
     Salida: str, confirmando que se han descargado los csv de x_train, x_test y_train e y_test.
     """
     df_EUROSTAT = pd.read_csv("EUROSTAT/data/serie/serie_EU.csv")
@@ -91,7 +94,7 @@ def setup_api(red: str): # SI REDUCE ES SI, SE HACER SELECKT BEST, SI NO NO
 def train(model: str,red: str):
     """Función para entrenar el modelo. Carga los datos para entrenar el modelo,
     y, una vez hecho, guarda EL MODELO en tu ordenador, su ruta y las metricas del modelo. 
-    Input: model,str, para seleccionar el modelo elegido y reduce,str, para confirmar si se usa selecktbest o no
+    Input: model,str, para seleccionar el modelo elegido y red,str, para confirmar si se usa selecktbest o no
     Output: dict: JSON con las metricas del modelo y la ruta donde se ha guardado"""        
     if red.lower() == "yes":
         X_train_reduce = pd.read_csv('X_train_reduce.csv')
@@ -130,13 +133,14 @@ def train(model: str,red: str):
             rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_regressor.fit(X_train_reduce, y_train_reduce)
             with open('random_red.pkl', 'wb') as f:
-                pickle.dump(model, f)
-            return "Model downloaded in pickle format"
+                pickle.dump(rf_regressor, f) # IMPORTANTE!!! GUARDAMOS COMO MODEL EN LUGAR DE GUARDAR EL MODELO
+            print("Model downloaded in pickle format")
+            
         else:
             rf_regressor = RandomForestRegressor(n_estimators=100, random_state=42)
             rf_regressor.fit(X_train, y_train)
             with open('random.pkl', 'wb') as f:
-                pickle.dump(model, f)
+                pickle.dump(rf_regressor, f)
             return "Model downloaded in pickle format"
     
     if model.lower() == "xgboost":
@@ -144,19 +148,19 @@ def train(model: str,red: str):
             xgb_regressor = xgb.XGBRegressor(objective ='reg:squarederror', n_estimators=100, random_state=42)
             xgb_regressor.fit(X_train_reduce, y_train_reduce)
             with open('XGBOOST_red.pkl', 'wb') as f: 
-                pickle.dump(model, f)
-            return "Model downloaded in pickle format"
+                pickle.dump(xgb_regressor, f)
+            print("Model downloaded in pickle format")
         else:
             xgb_regressor = xgb.XGBRegressor(objective ='reg:squarederror', n_estimators=100, random_state=42)
             xgb_regressor.fit(X_train, y_train)
             with open('XGBOOST.pkl', 'wb') as f: 
-                pickle.dump(model, f)
+                pickle.dump(xgb_regressor, f)
             return "Model downloaded in pickle format"
         
 @app.get("/v1/metrics")
 def metrics(model:str,red:str):
     """Función para obtener las métricas del modelo. Carga el modelo ya entrenado, carga los datos de test y devuelve el clasification report.
-    Input: model, str, con el nombre del modelo y reduce, str, con una respuesta de yes o no.
+    Input: model, str, con el nombre del modelo y red, str, con una respuesta de yes o no.
     Output: dict: JSON con el classification report del modelo"""
     if red.lower() == "yes":
         y_test_reduce = pd.read_csv('y_test_reduce.csv')
@@ -205,47 +209,81 @@ def metrics(model:str,red:str):
             mse = mean_squared_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
             return {"Mean Squared Error": mse, "R-squared": r2}
-        
-@app.post("/v1/predict")
-def predict(model:str, red: str, data: dict):
-    """Función para obtener prediccion. Carga el modelo, llama a la función predict del modelo pasandole los datos que le has pasado a la llamada. 
-    Input: model:str, para seleccionar el modelo, reduce:str, para elegir con SELECKTBEST O NO,dict: diccionario con los nombres y valores de las variables predictoras, para nuestra prueba.
+@app.post("/predict") # creamos una llamada nueva, derivada de la anterior, pero no funciona tampoco
+async def predict(request: Request):
+    try:
+        data = await request.json()
+        model = data.get("model")
+        red = data.get("red")
+        datos = data.get("data")
+
+        if model.lower() == "lstm":
+            with open('LSTM.pkl', 'rb') as f:
+                model = pickle.load(f)
+            prediction = model.predict([datos])[0]
+            return {"prediction": prediction}
+        elif model.lower() == "random":
+            if red.lower() == "yes":
+                with open('random_red.pkl', 'rb') as f:
+                    model = pickle.load(f)
+                prediction = model.predict([datos])[0]
+                return {"prediction": prediction}
+            else:
+                with open('random.pkl', 'rb') as f:
+                    model = pickle.load(f)
+                prediction = model.predict([datos])[0]
+                return {"prediction": prediction}
+        elif model.lower() == "xgboost":
+            if red.lower() == "yes":
+                with open('XGBOOST_red.pkl', 'rb') as f:
+                    model = pickle.load(f)
+                prediction = model.predict([datos])[0]
+                return {"prediction": prediction}
+            else:
+                with open('XGBOOST.pkl', 'rb') as f:
+                    model = pickle.load(f)
+                prediction = model.predict([datos])[0]
+                return {"prediction": prediction}
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported model")
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Model file not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
+    
+    
+@app.get("/v1/predict")
+def predict(model: str, red: str, datos: list): # probamos con una lista, porque le diccionario no funciona
+    """Función para obtener predicción. Carga el modelo, llama a la función predict del modelo pasándole los datos que le has pasado a la llamada. 
+    Input: model:str, para seleccionar el modelo, red:str, para elegir con SELECKTBEST O NO, list: lista con los valores de las variables predictoras, para nuestra prueba.
     Output: dict: JSON con la predicción."""
     if model.lower() == "lstm":
         with open('LSTM.pkl', 'rb') as f:
             model = pickle.load(f)
-        data_values = [data[key] for key in data]
-        prediccion = model.predict([data_values])[0]
-        return {"prediccion": prediccion} # para que devuelva un json o diccionario
+        prediccion = model.predict([datos])[0]
+        return {"prediccion": prediccion}
     elif model.lower() == "random":
         if red.lower() == "yes":
             with open('random_red.pkl', 'rb') as f:
                 model = pickle.load(f)
-            data_values = [data[key] for key in data]
-            prediccion = model.predict([data_values])[0]
-            return {"prediccion": prediccion} # para que devuelva un json o diccionario
+            prediccion = model.predict([datos])[0]
+            return {"prediccion": prediccion}
         else:
             with open('random.pkl', 'rb') as f:
                 model = pickle.load(f)
-            data_values = [data[key] for key in data]
-            prediccion = model.predict([data_values])[0]
-            return {"prediccion": prediccion} # para que devuelva un json o diccionario
-            
+            prediccion = model.predict([datos])[0]
+            return {"prediccion": prediccion}
     elif model.lower() == "xgboost":
         if red.lower() == "yes":
             with open('XGBOOST_red.pkl', 'rb') as f:
                 model = pickle.load(f)
-            data_values = [data[key] for key in data]
-            prediccion = model.predict([data_values])[0]
-            return {"prediccion": prediccion} # para que devuelva un json o diccionario
+            prediccion = model.predict([datos])[0]
+            return {"prediccion": prediccion}
         else:
             with open('XGBOOST.pkl', 'rb') as f:
                 model = pickle.load(f)
-            data_values = [data[key] for key in data]
-            prediccion = model.predict([data_values])[0]
-            return {"prediccion": prediccion} # para que devuelva un json o diccionario
-    
+            prediccion = model.predict([datos])[0]
+            return {"prediccion": prediccion}
     else: 
         return {"Error": "Unsupported model"}
-        
-        
+    
